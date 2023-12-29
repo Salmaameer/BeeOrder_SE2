@@ -1,6 +1,9 @@
 package com.beeorder.orders.service.product;
 
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,9 +22,9 @@ public class ProductController {
     }
 
     @PostMapping(value = "/addProduct")
-    public String addProduct(@RequestBody Product product) {
+    public String addProduct(@RequestBody List<Product> products) {
         // Logic to add product
-        String returnStatus = prService.addProduct(product);
+        String returnStatus = prService.addProduct(products);
 
         return returnStatus;
     }

@@ -11,7 +11,6 @@ public class OrderService implements OrderComponentService {
     OrdersInventory ordersInventory;
     public OrderService(OrdersInventory o)
     {
-
         this.ordersInventory = o;
     }    
     @Override

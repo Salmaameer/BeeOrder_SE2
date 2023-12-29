@@ -18,12 +18,20 @@ public class ProductService implements OrderComponentService {
     public ProductService(ProductRepo repos) {
         this.repos = repos;
     }
+    public String addProduct(List<Product> productsToAdd)
+    {
+        for(Product p : productsToAdd){
+            repos.products.add(p);
+        }
+        
+        return ("Products added");
+    }
+
     public String addProduct(Product productToAdd)
     {
         repos.products.add(productToAdd);
         return ("Product added");
     }
-
     public String deleteProduct(int id)
     {
         Product pro = null ;
