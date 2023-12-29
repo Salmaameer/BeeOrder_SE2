@@ -26,20 +26,10 @@ public class OrderController {
     {
         this.orderService = o;
     }
-    // @PostMapping(value = "/addToOrder/{id}")
-    // public String addProduct(@PathVariable("id") int id , @RequestBody Product product) {
-    //     // Logic to add product
 
-    //     String returnStatus = prService.addProduct(product);
-
-    //     return returnStatus;
-    // }
-    @PostMapping(value =  "/createOrder")
-    public void createOrder(@RequestBody List<orderComponent> orderComponents) {
-        for(orderComponent o : orderComponents)
-        {
-            orderService.addComponent(o);
-        }
+    @PostMapping(value =  "/createorder")
+    public Order createOrder(@RequestBody List<orderComponent> orderComponents) {
+        return  orderService.makeOrder(orderComponents);
     }
     
 }

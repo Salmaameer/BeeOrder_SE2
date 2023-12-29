@@ -22,7 +22,7 @@ public class RegisterService implements IRegister {
 
 
     for (Account acc : repo.accounts) {
-        if (acc.getId() == regAccount.getId()) {
+        if (acc.getUserName().equals(regAccount.getUserName())) {
             return ("Account already exists");
         }
         

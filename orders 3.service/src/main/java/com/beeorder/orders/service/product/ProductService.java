@@ -60,12 +60,12 @@ public class ProductService implements OrderComponentService {
     }
 
     @Override
-    public void addComponent(orderComponent o) {
+    public void addComponent(int id,orderComponent o) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'addComponent'");
     }
     @Override
-    public String removeComponent(orderComponent o) {
+    public String removeComponent(int id,orderComponent o) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'removeComponent'");
     }

@@ -6,6 +6,6 @@ import org.springframework.stereotype.Service;
 public interface OrderComponentService 
 {
    // public void viewDetails(int id);
-    public void addComponent(orderComponent o);
-    public String removeComponent(orderComponent o);
+    public void addComponent(int id,orderComponent o);
+    public String removeComponent(int id,orderComponent o);
 } 
