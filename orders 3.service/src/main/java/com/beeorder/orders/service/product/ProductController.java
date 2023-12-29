@@ -44,8 +44,8 @@ public class ProductController {
     }
 
     @GetMapping(value = "/getAll")
-    public ResponseEntity<ProductRepo> getAllProducts(@PathVariable("id") int id) {
+    public ProductRepo getAllProducts() {
         // Logic to add product
-        return ResponseEntity.ok( prService.getAllProducts());
+        return prService.getAllProducts();
     }
 }

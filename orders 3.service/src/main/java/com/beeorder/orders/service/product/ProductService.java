@@ -1,13 +1,18 @@
 package com.beeorder.orders.service.product;
 
 
+import java.util.List;
 import java.util.Map;
+
+import com.beeorder.orders.service.order.orderComponent;
 import com.beeorder.orders.service.product.ProductRepo;
 import org.springframework.stereotype.Service;
 
+import com.beeorder.orders.service.order.OrderComponentService;
+
 
 @Service
-public class ProductService {
+public class ProductService implements OrderComponentService {
     private ProductRepo repos;
     
     public ProductService(ProductRepo repos) {
@@ -23,7 +28,7 @@ public class ProductService {
     {
         Product pro = null ;
         for (Product p : repos.products) {
-            if (p.getSerialNumber() == id) {
+            if (p.getId() == id) {
                 pro = p;
             }
         }
@@ -40,7 +45,7 @@ public class ProductService {
     {
         Product pro = null ;
         for (Product p : repos.products) {
-            if (p.getSerialNumber() == id) {
+            if (p.getId() == id) {
                 pro = p;
             }
         }
@@ -52,6 +57,17 @@ public class ProductService {
     public ProductRepo getAllProducts()
     {
         return repos;
+    }
+
+    @Override
+    public void addComponent(orderComponent o) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addComponent'");
+    }
+    @Override
+    public String removeComponent(orderComponent o) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'removeComponent'");
     }
     
 }
