@@ -16,6 +16,7 @@ public class ProductService implements OrderComponentService {
     private ProductRepo repos;
     
     public ProductService(ProductRepo repos) {
+
         this.repos = repos;
     }
     public String addProduct(Product productToAdd)
@@ -61,12 +62,12 @@ public class ProductService implements OrderComponentService {
 
     @Override
     public void addComponent(int id,orderComponent o) {
-        // TODO Auto-generated method stub
+
         throw new UnsupportedOperationException("Unimplemented method 'addComponent'");
     }
     @Override
     public String removeComponent(int id,orderComponent o) {
-        // TODO Auto-generated method stub
+
         throw new UnsupportedOperationException("Unimplemented method 'removeComponent'");
     }
     

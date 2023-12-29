@@ -3,6 +3,8 @@ package com.beeorder.orders.service.order;
 import java.util.List;
 import java.util.Random;
 
+import com.beeorder.orders.service.product.ProductRepo;
+import ch.qos.logback.core.joran.sanity.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,19 +39,34 @@ public class OrderService implements OrderComponentService {
         return ("This product doesn't exist");
 
     }
-    public Order makeOrder(List<orderComponent> orderComp){
-        //initialize new id
-        Order newOrder  = new Order();
-        Random rand = new Random();
-        int randomInt = rand.nextInt(10000);
-        newOrder.id =  randomInt;
-        //newOrder.creationDate()
+//    public Order makeOrder(List<orderComponent> orderComp){
+//        //initialize new id
+//        Order newOrder  = new Order();
+//        Random rand = new Random();
+//        int randomInt = rand.nextInt(10000);
+//        newOrder.id =  randomInt;
+//        //newOrder.creationDate()
+//
+//        for (orderComponent comp : orderComp){
+//            newOrder.orderComponents.add(comp);
+//        }
+//
+//        return newOrder;
+//    }
+//
+//}
+public Order makeOrder(List<Pair<String,Integer>> orderComp){
+    //initialize new id
+    Order newOrder  = new Order();
+    Random rand = new Random();
+    int randomInt = rand.nextInt(10000);
+    newOrder.id =  randomInt;
+    //newOrder.creationDate()
 
-        for (orderComponent comp : orderComp){
-            newOrder.orderComponents.add(comp);
-        }
 
-        return newOrder;
-    }
+
+
+    return newOrder;
+}
 
 }
