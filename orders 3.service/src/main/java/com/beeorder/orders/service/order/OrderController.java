@@ -1,5 +1,6 @@
 package com.beeorder.orders.service.order;
 
+import ch.qos.logback.core.joran.sanity.Pair;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.beeorder.orders.service.product.Product;
@@ -36,7 +37,7 @@ public class OrderController {
     }
 
     @PostMapping(value =  "/createorder")
-    public Order createOrder(@RequestBody List<orderComponent> orderComponents) {
+    public Order createOrder(@RequestBody List<Pair<String,Integer>> orderComponents) {
         return  orderService.makeOrder(orderComponents);
     }
 
