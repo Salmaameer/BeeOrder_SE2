@@ -44,9 +44,9 @@ public class OrderController {
     
 
     @PostMapping(value = "/addProduct")
-    public String addProduct(@RequestBody Product product) {
+    public String addProduct(@RequestBody List<Product> products) {
         // Logic to add product
-        String returnStatus = prService.addProduct(product);
+        String returnStatus = prService.addProduct(products);
 
         return returnStatus;
     }
