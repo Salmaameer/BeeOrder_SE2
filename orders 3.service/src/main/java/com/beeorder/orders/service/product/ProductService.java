@@ -13,7 +13,7 @@ import com.beeorder.orders.service.order.OrderComponentService;
 
 @Service
 public class ProductService implements OrderComponentService {
-    private ProductRepo repos;
+    public  ProductRepo repos;
     
     public ProductService(ProductRepo repos) {
 

@@ -1,10 +1,12 @@
 package com.beeorder.orders.service.order;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.beeorder.orders.service.product.ProductRepo;
+import com.beeorder.orders.service.product.*;
 import ch.qos.logback.core.joran.sanity.Pair;
+import com.beeorder.orders.service.product.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,16 +56,30 @@ public class OrderService implements OrderComponentService {
 //    }
 //
 //}
-public Order makeOrder(List<Pair<String,Integer>> orderComp){
+public Order makeOrder(ProductService productService, List<PairDto> orderComp){
+        ProductRepo productRepo = productService.repos;
+
     //initialize new id
     Order newOrder  = new Order();
     Random rand = new Random();
     int randomInt = rand.nextInt(10000);
     newOrder.id =  randomInt;
     //newOrder.creationDate()
+    newOrder.orderComponents = new ArrayList<>();
 
+    for (PairDto pair : orderComp){
+        for (Product prod : productRepo.products){
+            if (pair.getName().equals(prod.getName()) ){
+                if (prod.getQuantity() >= pair.getQuantity()){
+                    newOrder.orderComponents.add(prod);
+                    prod.setQuantity(prod.getQuantity() - pair.getQuantity()); //update the quantity
+                }
 
-
+            }else{
+                System.out.println("Can't add this item to the order");
+            }
+        }
+    }
 
     return newOrder;
 }

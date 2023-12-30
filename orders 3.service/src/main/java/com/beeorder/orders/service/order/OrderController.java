@@ -37,8 +37,8 @@ public class OrderController {
     }
 
     @PostMapping(value =  "/createorder")
-    public Order createOrder(@RequestBody List<Pair<String,Integer>> orderComponents) {
-        return  orderService.makeOrder(orderComponents);
+    public Order createOrder(@RequestBody List<PairDto> orderComponents) {
+        return  orderService.makeOrder(prService,orderComponents);
     }
 
     
@@ -47,8 +47,8 @@ public class OrderController {
     public String addProduct(@RequestBody List<Product> products) {
         // Logic to add product
         String returnStatus = prService.addProduct(products);
-
         return returnStatus;
+
     }
 
     
