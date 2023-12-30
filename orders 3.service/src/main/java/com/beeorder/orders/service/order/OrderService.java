@@ -9,7 +9,7 @@ import com.beeorder.orders.service.account.AccountRepo;
 import com.beeorder.orders.service.account.AccountService;
 import com.beeorder.orders.service.product.*;
 import ch.qos.logback.core.joran.sanity.Pair;
-import com.beeorder.orders.service.product.ProductService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class OrderService implements OrderComponentService {
     OrdersInventory ordersInventory;
 
-    public OrderService(OrdersInventory o ) {
+    public OrderService(OrdersInventory o) {
         this.ordersInventory = o;
     }
 
@@ -62,31 +62,31 @@ public class OrderService implements OrderComponentService {
     // }
     //
     // }
-    public boolean  isExist(int id)
-    {
+    public boolean isExist(int id) {
         return true;
     }
-    public String  authorizeUsers(AccountService accService , List<String> userNames)
-    {
+
+    public String authorizeUsers(AccountService accService, List<String> userNames) {
         List<Account> authorizedAccounts = new ArrayList<>();
         List<String> temp = new ArrayList<String>(userNames);
 
         AccountRepo accRepo = accService.accountRepo;
-        for (Account acc : accRepo.accounts){
-            for (String name : userNames){
+        for (Account acc : accRepo.accounts) {
+            for (String name : userNames) {
                 System.out.println(name);
-                if (name.equals(acc.getUserName())){
+                if (name.equals(acc.getUserName())) {
                     authorizedAccounts.add(acc);
-                   temp.remove(name);
+                    temp.remove(name);
                 }
             }
         }
 
         String feedBack = "";
-        if (temp.isEmpty())  return ("All users Found");
-        else{
-            for (String n : temp){
-                feedBack += n ;
+        if (temp.isEmpty())
+            return ("All users Found");
+        else {
+            for (String n : temp) {
+                feedBack += n;
                 feedBack += " ";
             }
             feedBack += "Not found";
@@ -122,11 +122,32 @@ public class OrderService implements OrderComponentService {
         return newOrder;
     }
 
-   // function to assign product for simple
-    // retruns
-
-//    public Order assignProductsToAccounts(Order compositeOrder,List<Account> accounts){
-//
-//    }
+    public Order assignProductsToAccounts(Order compositeOrder, List<Account> accounts) {
+        if (accounts.size() == 1) {
+            return compositeOrder;
+        } else {
+            int noAcc = accounts.size();
+            int productNo = compositeOrder.getOrderComponents().size();
+            int noProductsPerorder = productNo / noAcc;
+            Order Allorders = new Order();
+            int num = productNo % noAcc;
+            List<orderComponent> products = compositeOrder.getOrderComponents();
+            int i = 0;
+            while (i < productNo) {
+                Order simpleOrder = new Order();
+                while (num != 0) {
+                    simpleOrder.orderComponents.add(products.get(i));
+                    i++;
+                    num--;
+                }
+                for (int j = i; j < i + noProductsPerorder; j++) {
+                    simpleOrder.orderComponents.add(products.get(j));
+                }
+                Allorders.getOrderComponents().add(simpleOrder);
+                i+=noProductsPerorder;
+            }
+            return Allorders;
+        }
+    }
 
 }
