@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AccountService
 {
-    private AccountRepo accountRepo;
+    public  AccountRepo accountRepo;
     public AccountService(AccountRepo o)
     {
         this.accountRepo=o;

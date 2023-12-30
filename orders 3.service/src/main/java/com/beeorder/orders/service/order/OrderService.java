@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.beeorder.orders.service.account.Account;
+import com.beeorder.orders.service.account.AccountRepo;
+import com.beeorder.orders.service.account.AccountService;
 import com.beeorder.orders.service.product.*;
 import ch.qos.logback.core.joran.sanity.Pair;
 import com.beeorder.orders.service.product.ProductService;
@@ -63,9 +66,31 @@ public class OrderService implements OrderComponentService {
     {
         return true;
     }
-    public void authorizeUser(ProductService productService, List<PairDto> orderComp,String username)
+    public String  authorizeUsers(AccountService accService , List<String> userNames)
     {
+        List<Account> authorizedAccounts = new ArrayList<>();
+        List<String> temp = userNames;
 
+        AccountRepo accRepo = accService.accountRepo;
+        for (Account acc : accRepo.accounts){
+            for (String name : userNames){
+                if (name.equals(acc.getUserName())){
+                    authorizedAccounts.add(acc);
+                    temp.remove(name);
+                }
+            }
+        }
+
+        String feedBack = "";
+        if (temp.isEmpty())  return ("All users Found");
+        else{
+            for (String n : temp){
+                feedBack += n ;
+                feedBack += " ";
+            }
+            feedBack += "Not found";
+        }
+        return feedBack;
     }
 
     public Order makeOrder(ProductService productService, List<PairDto> orderComp) {

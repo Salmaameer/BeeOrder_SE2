@@ -1,6 +1,7 @@
 package com.beeorder.orders.service.order;
 
 import ch.qos.logback.core.joran.sanity.Pair;
+import com.beeorder.orders.service.account.AccountService;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.beeorder.orders.service.product.Product;
@@ -30,49 +31,56 @@ public class OrderController {
     private OrderService orderService;
 @Autowired
     private ProductService prService;
+@Autowired
+    private AccountService AccService;
 
-    public OrderController(OrderService o , ProductService s)
+
+    public OrderController(OrderService o , ProductService s, AccountService accSer)
     {
         this.orderService = o;
         this.prService = s;
+        this.AccService = accSer;
     }
 
     @PostMapping(value =  "/createorder")
-    public Order createOrder(@RequestBody List<PairDto> orderComponents) {
-        return  orderService.makeOrder(prService,orderComponents);
+    public Order createOrder(@RequestBody List<PairDto> orderComponents,@RequestBody  List<String> userNames) {
+//        String feedBack = orderService.authorizeUsers(AccService , userNames);
+//        if (!feedBack.equals("All users Found")) return null;
+//        else {
+            return  orderService.makeOrder(prService,orderComponents);
+        //}
     }
 
     
 
-    @PostMapping(value = "/addProduct")
-    public String addProduct(@RequestBody List<Product> products) {
-        // Logic to add product
-        String returnStatus = prService.addProduct(products);
-        return returnStatus;
-
-    }
+//    @PostMapping(value = "/addProduct")
+//    public String addProduct(@RequestBody List<Product> products) {
+//        // Logic to add product
+//        String returnStatus = prService.addProduct(products);
+//        return returnStatus;
+//
+//    }
 
     
-    @DeleteMapping("/delete/{id}")
-    public  String deletePerson(@PathVariable("id") int id) {
-        System.out.println("in delete with id:"+id);
-        String returnStatus = prService.deleteProduct(id);
-        
-        return returnStatus;
+//    @DeleteMapping("/delete/{id}")
+//    public  String deleteProduct(@PathVariable("id") int id) {
+//        System.out.println("in delete with id:"+id);
+//        String returnStatus = prService.deleteProduct(id);
+//
+//        return returnStatus;
+//    }
 
-    }
+//    @GetMapping(value = "/get/{id}")
+//    public Product getProduct(@PathVariable("id") int id) {
+//        // Logic to add product
+//
+//        return prService.getProduct(id);
+//    }
 
-    @GetMapping(value = "/get/{id}")
-    public Product getProduct(@PathVariable("id") int id) {
-        // Logic to add product
-        
-        return prService.getProduct(id);
-    }
-
-    @GetMapping(value = "/getAll")
-    public ProductRepo getAllProducts() {
-        // Logic to add product
-        return prService.getAllProducts();
-    }
+//    @GetMapping(value = "/getAll")
+//    public ProductRepo getAllProducts() {
+//        // Logic to add product
+//        return prService.getAllProducts();
+//    }
     
 }
