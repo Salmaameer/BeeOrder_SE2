@@ -69,14 +69,15 @@ public class OrderService implements OrderComponentService {
     public String  authorizeUsers(AccountService accService , List<String> userNames)
     {
         List<Account> authorizedAccounts = new ArrayList<>();
-        List<String> temp = userNames;
+        List<String> temp = new ArrayList<String>(userNames);
 
         AccountRepo accRepo = accService.accountRepo;
         for (Account acc : accRepo.accounts){
             for (String name : userNames){
+                System.out.println(name);
                 if (name.equals(acc.getUserName())){
                     authorizedAccounts.add(acc);
-                    temp.remove(name);
+                   temp.remove(name);
                 }
             }
         }
@@ -120,5 +121,12 @@ public class OrderService implements OrderComponentService {
 
         return newOrder;
     }
+
+   // function to assign product for simple
+    // retruns
+
+//    public Order assignProductsToAccounts(Order compositeOrder,List<Account> accounts){
+//
+//    }
 
 }

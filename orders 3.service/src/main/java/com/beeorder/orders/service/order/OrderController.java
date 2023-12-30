@@ -43,12 +43,14 @@ public class OrderController {
     }
 
     @PostMapping(value =  "/createorder")
-    public Order createOrder(@RequestBody List<PairDto> orderComponents,@RequestBody  List<String> userNames) {
-//        String feedBack = orderService.authorizeUsers(AccService , userNames);
-//        if (!feedBack.equals("All users Found")) return null;
-//        else {
-            return  orderService.makeOrder(prService,orderComponents);
-        //}
+    public Order createOrder(@RequestBody RequestDTO request) {
+
+        String feedBack = orderService.authorizeUsers(AccService , request.getUserNames());
+        System.out.println(feedBack);
+        if (!feedBack.equals("All users Found")) return null;
+        else {
+            return orderService.makeOrder(prService,request.getOrderComponents());
+        }
     }
 
     
