@@ -28,6 +28,7 @@ public class OrderController {
     
 @Autowired
     private OrderService orderService;
+@Autowired
     private ProductService prService;
 
     public OrderController(OrderService o , ProductService s)
