@@ -1,6 +1,8 @@
 package com.beeorder.orders.service.order;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 import com.beeorder.orders.service.account.Account;
@@ -148,7 +150,9 @@ public Order assignProductsToOrders(List<Product> ourProducts , List<Account> ac
         // to handel the remaining of the products
         while (num != 0) {
             simpleOrder.getOrderProduct().add(ourProducts.get(i));
-            simpleOrder.setTotalCost(simpleOrder.getTotalCost() + ourProducts.get(i).getPrice());
+            //calculate product total depends on quantity
+            double productTotal = ourProducts.get(i).getPrice() * ourProducts.get(i).getQuantity();
+            simpleOrder.setTotalCost(simpleOrder.getTotalCost() + productTotal );
             i++;
             num--;
         }
@@ -190,7 +194,12 @@ public Order assignProductsToOrders(List<Product> ourProducts , List<Account> ac
             for (Product prod : productRepo.products) {
                 if (pair.getName().equals(prod.getName())) {
                     if (prod.getQuantity() >= pair.getQuantity()) {
-                        allProducts.add(prod);
+
+                        // set the same found product but with asked user  quantity
+                        Product userPro = prod;
+                        userPro.setQuantity(pair.getQuantity());
+                        allProducts.add(userPro);
+                        //update the quantity in the inventory
                         prod.setQuantity(prod.getQuantity() - pair.getQuantity()); // update the quantity
                     }
                 } else {
@@ -202,21 +211,90 @@ public Order assignProductsToOrders(List<Product> ourProducts , List<Account> ac
         return allProducts;
     }
 
-    public String cancelOrder(int id){
+    public String cancelOrder(int id, ProductService prService){
         for (orderComponent order : ordersInventory.orders) {
             if(order.getId() == id){
                 if(order instanceof SimpleOrder){
                     SimpleOrder temp = (SimpleOrder) order;
-                    if(temp.getStatus() == OrderStatus.SHIPPED)
+                    if(temp.getStatus() == OrderStatus.SHIPPED){
+
+
+                        }
+
+
                         return "Sorry the order has been shipped!";
+                    }
                     else{
                         
                     }
                 }
-            }
+
         }
         return "";
     }
 
 
-}
+
+
+
+    public void cancelProcess(SimpleOrder order,  ProductService prService){
+
+        LocalTime currentTime =  LocalTime.now();
+        Duration duration = Duration.between(order.getCreationTime() , currentTime);
+        Long minutes = duration.toMinutes() % 60;
+        if ( minutes <= 1) {
+                            /*
+                            cancellation process
+                            1- return deducted money to the account
+                            2- remove the order from the repo
+                            3- remove from notification queue
+                            4- return the quantity of the products
+                            5- give feedback
+                             */
+            double accBal = order.getOrderAccount().getBalance();
+            // shipment fees will not be returned ;)
+            order.getOrderAccount().setBalance(accBal + order.getTotalCost());
+
+
+            List<Product> orderProducts = order.getOrderProduct();
+
+            List<Product> inventroyPro = prService.repos.products;
+
+            // return the previous quantity of the products
+            for (Product product : order.getOrderProduct()){
+                for (Product invenPro : inventroyPro){
+                    if (product.getId() == invenPro.getId()){
+                        int currentQuan = invenPro.getQuantity();
+                        //return the previous quantity of the inventory product
+                        invenPro.setQuantity(currentQuan + product.getQuantity());
+                    }
+                }
+
+            }
+            // change order status
+            for ( orderComponent o : ordersInventory.orders){
+                if (o.getId() == order.getId()){
+                    order.setStatus(OrderStatus.CANCELLED);
+                    o = order;
+                }
+            }
+
+
+
+
+
+
+
+
+        }
+
+
+
+        }
+
+
+
+    }
+
+
+

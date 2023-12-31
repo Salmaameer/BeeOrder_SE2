@@ -27,13 +27,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 public class OrderController {
-    
+
+    @Autowired
+    public ProductService prService;
 @Autowired
     private OrderService orderService;
 @Autowired
-    private ProductService prService;
-@Autowired
     private AccountService AccService;
+
 
 
     public OrderController(OrderService o , ProductService s, AccountService accSer)
@@ -61,7 +62,7 @@ public class OrderController {
 
     @DeleteMapping(value = "/cancelOrder/{id}")
     public String cancelOrder(@PathVariable("id") int id){
-        return orderService.cancelOrder(id);
+        return orderService.cancelOrder(id ,prService);
     }
 
     
