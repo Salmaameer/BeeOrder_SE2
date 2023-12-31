@@ -9,6 +9,7 @@ import com.beeorder.orders.service.OrdersManager.SimpleOrderManager;
 import com.beeorder.orders.service.account.Account;
 import com.beeorder.orders.service.account.AccountRepo;
 import com.beeorder.orders.service.account.AccountService;
+import com.beeorder.orders.service.notification.NotificationQueue;
 import com.beeorder.orders.service.notification.PlacedNotification;
 import com.beeorder.orders.service.product.*;
 import ch.qos.logback.core.joran.sanity.Pair;
@@ -19,10 +20,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class OrderService{
     
-    OrdersInventory ordersInventory = new OrdersInventory(); // 
-    private List<Account> authorizedAccounts = new ArrayList<>();; // contains the accounts that exist in the system , to authorize to create the user
-    SimpleOrderManager simpleOrderManager = new SimpleOrderManager();
-    CompoundOrderManager compoundOrderManager = new CompoundOrderManager();
+    public OrdersInventory ordersInventory = new OrdersInventory(); // 
+    private List<Account> authorizedAccounts = new ArrayList<>();// contains the accounts that exist in the system , to authorize to create the user
+    @Autowired
+    public NotificationQueue notificationQueue = new NotificationQueue();
+    public SimpleOrderManager simpleOrderManager  = new SimpleOrderManager(notificationQueue);
+    public CompoundOrderManager compoundOrderManager = new CompoundOrderManager(notificationQueue);
+    
+
 
     public OrderService(OrdersInventory o) {
         this.ordersInventory = o;
@@ -76,17 +81,16 @@ public class OrderService{
             if(order.getId() == id){
                 if(order instanceof SimpleOrder){
                     SimpleOrder temp = (SimpleOrder) order;
-                    if(temp.getStatus() == OrderStatus.SHIPPED){
-                        simpleOrderManager.cancelProcess(temp, prService, ordersInventory);
-                    }
+                      return simpleOrderManager.cancelProcess(temp, prService, ordersInventory);
+                    
                         
                     }
                     else{
                         Order temp = (Order) order;
                         List<SimpleOrder> coSimpleOrders = temp.orderComponents;
                         for(SimpleOrder simOrder : coSimpleOrders){
-                            simpleOrderManager.cancelProcess(simOrder,prService,ordersInventory);
-;                        }
+                          return  simpleOrderManager.cancelProcess(simOrder,prService,ordersInventory);
+                          }
                         
                     }
                 }

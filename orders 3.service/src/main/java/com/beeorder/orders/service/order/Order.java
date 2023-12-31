@@ -13,6 +13,8 @@ import lombok.Setter;
 public class Order extends orderComponent{
     private int id;
     public List<SimpleOrder> orderComponents = new ArrayList<>();
+    ShipmentNotification notification = new ShipmentNotification();
+
 
     public orderComponent viewDetails() {
         for(SimpleOrder o : orderComponents)

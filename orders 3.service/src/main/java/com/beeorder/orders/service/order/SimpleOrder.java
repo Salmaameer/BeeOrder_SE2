@@ -1,5 +1,6 @@
 package com.beeorder.orders.service.order;
 import com.beeorder.orders.service.account.Account;
+import com.beeorder.orders.service.notification.ShipmentNotification;
 import com.beeorder.orders.service.product.Product;
 
 import ch.qos.logback.core.status.Status;
@@ -20,6 +21,8 @@ public class SimpleOrder extends orderComponent {
     public Account orderAccount;
     public LocalTime creationTime; 
     public OrderStatus status;
+    public ShipmentNotification notification = new ShipmentNotification();
+
 
     // default constructor setting the creation time of this product. 
     public SimpleOrder(){

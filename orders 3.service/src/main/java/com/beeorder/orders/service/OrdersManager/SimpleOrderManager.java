@@ -24,7 +24,12 @@ import com.beeorder.orders.service.product.ProductService;
 @Service
 public class SimpleOrderManager {
     @Autowired
-    NotificationQueue queue = new NotificationQueue();
+    NotificationQueue queue ;
+
+    
+    public SimpleOrderManager  (NotificationQueue q){
+        this.queue = q;
+    }
     
 
     public String createSimpleOrder(ProductService productService, List<PairDto> orderComp,OrdersInventory ordersInv,List<Account> authorized){
@@ -58,15 +63,21 @@ public class SimpleOrderManager {
         List<Product> allProducts = new ArrayList<>();
         for (PairDto pair : orderComp) {
             for (Product prod : productRepo.products) {
+        
+                
                 if (pair.getName().equals(prod.getName())) {
                     if (prod.getQuantity() >= pair.getQuantity()) {
 
                         // set the same found product but with asked user  quantity
+                         int q = prod.getQuantity(); // save old quantity
                         Product userPro = prod;
                         userPro.setQuantity(pair.getQuantity());
                         allProducts.add(userPro);
                         //update the quantity in the inventory
-                        prod.setQuantity(prod.getQuantity() - pair.getQuantity()); // update the quantity
+                        prod.setQuantity(q);
+                       
+                        prod.setQuantity(q - pair.getQuantity()); // update the quantity
+                       
                     }
                 } else {
                     System.out.println("Can't add this item to the order");
@@ -127,6 +138,8 @@ public class SimpleOrderManager {
                 // -> if it shipped, go to shippingNotification queue.
             // 2- search for the notification (with id) and remove it
 
+            System.out.println("order stat : " + order.status);
+            System.out.println("queue size " + queue.shipmentNotifications.size() );
             if(order.getStatus() == OrderStatus.PLACED){
                 for (Notification notification : queue.placementNotifications) {
                     if(notification.getId() == order.getId()){

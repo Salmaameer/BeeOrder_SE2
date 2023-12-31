@@ -2,8 +2,11 @@ package com.beeorder.orders.service.OrdersManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.beeorder.orders.service.account.Account;
+import com.beeorder.orders.service.notification.NotificationQueue;
 import com.beeorder.orders.service.notification.PlacedNotification;
 import com.beeorder.orders.service.order.Order;
 import com.beeorder.orders.service.order.OrderStatus;
@@ -17,6 +20,14 @@ import com.beeorder.orders.service.product.ProductService;
 
 @Service
 public class CompoundOrderManager {
+     @Autowired
+    NotificationQueue queue ;
+
+    
+    public CompoundOrderManager  (NotificationQueue q){
+        this.queue = q;
+    }
+
     public String createCompoundOrder(ProductService productService, List<PairDto> orderComp, List<Account> authorizedAccounts, OrdersInventory ordersInventory) {
         ProductRepo productRepo = productService.repos;
         // generate compound order to add simple orders to it
@@ -70,10 +81,11 @@ public class CompoundOrderManager {
 
             if (isEnoughBalance(accounts.get(accCounter), simpleOrder.getTotalCost())) {
                 // sending notification for every simple order found in the compound order
-                placementNotification.sendNotification(simpleOrder);
-                simpleOrder.setStatus(OrderStatus.PLACED);
+                
                 simpleOrder.setId(generateID());
                 simpleOrder.setOrderAccount(accounts.get(accCounter));
+                placementNotification.sendNotification(simpleOrder);
+                simpleOrder.setStatus(OrderStatus.PLACED);
                 compoundOrder.getOrderComponents().add(simpleOrder);
             }
 
@@ -102,11 +114,14 @@ public class CompoundOrderManager {
                     if (prod.getQuantity() >= pair.getQuantity()) {
 
                         // set the same found product but with asked user quantity
+                        int q = prod.getQuantity(); // save old quantity
                         Product userPro = prod;
                         userPro.setQuantity(pair.getQuantity());
                         allProducts.add(userPro);
-                        // update the quantity in the inventory
-                        prod.setQuantity(prod.getQuantity() - pair.getQuantity()); // update the quantity
+                        //update the quantity in the inventory
+                        prod.setQuantity(q);
+                       
+                        prod.setQuantity(q - pair.getQuantity()); // update the quantity
                     }
                 }
             }
