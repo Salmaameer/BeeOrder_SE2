@@ -23,7 +23,7 @@ import com.beeorder.orders.service.product.ProductService;
 
 @Service
 public class SimpleOrderManager {
-    @Autowired
+    
     NotificationQueue queue ;
 
     
@@ -34,7 +34,7 @@ public class SimpleOrderManager {
 
     public String createSimpleOrder(ProductService productService, List<PairDto> orderComp,OrdersInventory ordersInv,List<Account> authorized){
         ProductRepo productRepo = productService.repos;
-        PlacedNotification placementNotification  = new PlacedNotification();
+        PlacedNotification placementNotification  = new PlacedNotification(queue);
         
         SimpleOrder newOrder = new SimpleOrder();
         newOrder.orderProduct = new ArrayList<>();
@@ -47,12 +47,10 @@ public class SimpleOrderManager {
 
         // update the total cost
         for (Product p : allProducts){
-            newOrder.setTotalCost(newOrder.getTotalCost() + p.getPrice());
+            newOrder.setTotalCost(newOrder.getTotalCost() +( p.getPrice() * p.getQuantity()));
         }
         newOrder.setOrderProduct(allProducts);
-        System.out.println(newOrder.getOrderProduct());
         newOrder.setOrderAccount(authorized.get(0));
-        System.out.println(newOrder.getOrderAccount());
         ordersInv.orders.add(newOrder);
         placementNotification.sendNotification(newOrder);
         newOrder.setStatus(OrderStatus.PLACED);
@@ -69,7 +67,7 @@ public class SimpleOrderManager {
                     if (prod.getQuantity() >= pair.getQuantity()) {
 
                         // set the same found product but with asked user  quantity
-                         int q = prod.getQuantity(); // save old quantity
+                        int q = prod.getQuantity(); // save old quantity
                         Product userPro = prod;
                         userPro.setQuantity(pair.getQuantity());
                         allProducts.add(userPro);
@@ -124,13 +122,13 @@ public class SimpleOrderManager {
             }
 
             // change order status
-            for ( orderComponent o : ordersInventory.orders){
-                if (o.getId() == order.getId()){
-                    order.setStatus(OrderStatus.CANCELLED);
-                    o = order;
-                    break;
-                }
-            }
+            // for ( orderComponent o : ordersInventory.orders){
+            //     if (o.getId() == order.getId()){
+            //         order.setStatus(OrderStatus.CANCELLED);
+            //         o = order;
+            //         break;
+            //     }
+            // }
 
             // remove this order' notification from notification queue.
             // 1- check the status of the order
@@ -139,20 +137,27 @@ public class SimpleOrderManager {
             // 2- search for the notification (with id) and remove it
 
             System.out.println("order stat : " + order.status);
-            System.out.println("queue size " + queue.shipmentNotifications.size() );
-            if(order.getStatus() == OrderStatus.PLACED){
+            
+            if(order.getStatus().equals(OrderStatus.PLACED)){
+                order.setStatus(OrderStatus.CANCELLED);
+                System.out.println("placed queue size " + queue.placementNotifications.size() );
                 for (Notification notification : queue.placementNotifications) {
                     if(notification.getId() == order.getId()){
-                        System.out.println(notification.getMessage() + "has been deleted");
+                        System.out.println(notification.getMessage() + " has been deleted");
                         queue.placementNotifications.remove(notification);
+                        System.out.println("placed queue size after remove " + queue.placementNotifications.size() );
+
                         break;
                     }
                 }
-            }else if(order.getStatus() == OrderStatus.SHIPPED){
+            }else if(order.getStatus().equals(OrderStatus.SHIPPED)){
+                System.out.println("shipment queue size " + queue.shipmentNotifications.size() );
+                order.setStatus(OrderStatus.CANCELLED);
                 for (Notification notification : queue.shipmentNotifications) {
                     if(notification.getId() == order.getId()){
-                        System.out.println(notification.getMessage() + "has been deleted");
+                        System.out.println(notification.getMessage() + " has been deleted");
                         queue.shipmentNotifications.remove(notification);
+                        System.out.println("shipment queue size after remove " + queue.shipmentNotifications.size() );
                         break;
                     }
                 }
@@ -160,7 +165,7 @@ public class SimpleOrderManager {
             return "Order has been canceled!";
         }else{
             System.out.println(minutes);
-            return "You can not cancel the order!";
+            return "You can not cancel the order you exceded the allowed time limit!";
         }
         // return "";
     }

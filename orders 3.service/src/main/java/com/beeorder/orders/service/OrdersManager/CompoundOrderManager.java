@@ -55,7 +55,7 @@ public class CompoundOrderManager {
         int productNo = ourProducts.size();
         int noProductsPerorder = productNo / noAcc;
         int num = productNo % noAcc;
-        PlacedNotification placementNotification = new PlacedNotification();
+        PlacedNotification placementNotification = new PlacedNotification(queue);
         // make the compound order that will contains the simple orders
         Order compoundOrder = new Order();
 

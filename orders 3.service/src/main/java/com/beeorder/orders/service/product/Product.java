@@ -1,6 +1,7 @@
 
 package com.beeorder.orders.service.product;
 
+import com.beeorder.orders.service.notification.NotificationQueue;
 import com.beeorder.orders.service.order.orderComponent;
 
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class Product extends orderComponent {
         return this;
     }
     @Override
-    public void deductFromBalance() {
+    public void deductFromBalance(NotificationQueue q) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deductFromBalance'");
     }

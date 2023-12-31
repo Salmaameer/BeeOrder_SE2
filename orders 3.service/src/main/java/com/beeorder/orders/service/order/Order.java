@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.beeorder.orders.service.account.Account;
+import com.beeorder.orders.service.notification.NotificationQueue;
 import com.beeorder.orders.service.notification.ShipmentNotification;
 
 import lombok.Getter;
@@ -13,9 +14,10 @@ import lombok.Setter;
 public class Order extends orderComponent{
     private int id;
     public List<SimpleOrder> orderComponents = new ArrayList<>();
-    ShipmentNotification notification = new ShipmentNotification();
+    ShipmentNotification notification ;
 
 
+    
     public orderComponent viewDetails() {
         for(SimpleOrder o : orderComponents)
         {
@@ -28,8 +30,9 @@ public class Order extends orderComponent{
         orderComponents.add(orderComp);
     }
 
-    public void deductFromBalance()
+    public void deductFromBalance(NotificationQueue notifyQueue)
     {
+        notification = new ShipmentNotification(notifyQueue);
         for(SimpleOrder order : orderComponents)
         {
             double currBalance = order.getOrderAccount().getBalance();
@@ -38,7 +41,10 @@ public class Order extends orderComponent{
             System.out.println(order.getOrderAccount().getBalance());
             notification.sendNotification(order);
             order.setStatus(OrderStatus.SHIPPED);
+            System.out.println("from corder de : " + notifyQueue.placementNotifications.size());
 
         }
     }
+
+   
 }

@@ -1,5 +1,6 @@
 package com.beeorder.orders.service.order;
 import com.beeorder.orders.service.account.Account;
+import com.beeorder.orders.service.notification.NotificationQueue;
 import com.beeorder.orders.service.notification.ShipmentNotification;
 import com.beeorder.orders.service.product.Product;
 
@@ -21,7 +22,7 @@ public class SimpleOrder extends orderComponent {
     public Account orderAccount;
     public LocalTime creationTime; 
     public OrderStatus status;
-    public ShipmentNotification notification = new ShipmentNotification();
+    public ShipmentNotification notification ;
 
 
     // default constructor setting the creation time of this product. 
@@ -39,13 +40,15 @@ public class SimpleOrder extends orderComponent {
         return null;
     }
 
-    public void deductFromBalance()
+    public void deductFromBalance(NotificationQueue notifyQueue)
     {
+        notification = new ShipmentNotification(notifyQueue);
         double currBalance = orderAccount.getBalance();
         currBalance -= ( totalCost + 50 ); // order cost+ shippment fees
         orderAccount.setBalance(currBalance);
         System.out.println(orderAccount.getBalance());
         notification.sendNotification(this);
         this.setStatus(OrderStatus.SHIPPED);
+        System.out.println("from deduct : " + notifyQueue.placementNotifications.size());
     }
 }

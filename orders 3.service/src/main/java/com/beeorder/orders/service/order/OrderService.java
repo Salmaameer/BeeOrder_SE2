@@ -22,7 +22,6 @@ public class OrderService{
     
     public OrdersInventory ordersInventory = new OrdersInventory(); // 
     private List<Account> authorizedAccounts = new ArrayList<>();// contains the accounts that exist in the system , to authorize to create the user
-    @Autowired
     public NotificationQueue notificationQueue = new NotificationQueue();
     public SimpleOrderManager simpleOrderManager  = new SimpleOrderManager(notificationQueue);
     public CompoundOrderManager compoundOrderManager = new CompoundOrderManager(notificationQueue);

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.beeorder.orders.service.order.OrderController;
+import com.beeorder.orders.service.order.OrderService;
 import com.beeorder.orders.service.order.OrdersInventory;
 
 @RestController
@@ -15,11 +16,13 @@ import com.beeorder.orders.service.order.OrdersInventory;
 public class CheckoutController {
     @Autowired
     private CheckoutService checkoutService;
+    @Autowired
+    private OrderService orderService;
 
     @PostMapping("/{id}")
     public String checkout(@PathVariable("id") int id){
 
-        return checkoutService.checkOutProcess(id);
+        return checkoutService.checkOutProcess(id,orderService.notificationQueue);
     }
 
 }

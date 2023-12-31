@@ -9,7 +9,11 @@ import com.beeorder.orders.service.product.Product;
 @Service
 public class PlacedNotification extends Notification {
     @Autowired    
-    NotificationQueue queue = new NotificationQueue();
+    NotificationQueue queue ;
+
+    public PlacedNotification(NotificationQueue q){
+        this.queue = q;
+    }
 
     @Override
     public void sendNotification(SimpleOrder order) {

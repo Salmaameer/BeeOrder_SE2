@@ -9,7 +9,11 @@ import com.beeorder.orders.service.product.Product;
 @Service
 public class ShipmentNotification extends Notification{
     @Autowired
-    NotificationQueue queue = new NotificationQueue();
+    NotificationQueue queue ;
+
+    public ShipmentNotification(NotificationQueue q){
+        this.queue = q;
+    }
     
     
     @Override
