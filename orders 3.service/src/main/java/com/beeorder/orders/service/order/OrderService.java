@@ -65,7 +65,6 @@ public class OrderService{
         return feedBack;
     }
 
-
     public String makeSimple(ProductService productService, List<PairDto> orderComp){
         return simpleOrderManager.makeSimpleProduct(productService, orderComp, ordersInventory,authorizedAccounts);
     }
