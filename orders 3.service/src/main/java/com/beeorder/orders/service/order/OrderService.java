@@ -18,10 +18,9 @@ import org.springframework.stereotype.Service;
 // represents services provided by the order module
 @Service
 public class OrderService{
-    OrdersInventory ordersInventory; // 
-    private List<Account> authorizedAccounts; // contains the accounts that exist in the system , to authorize to create the user
-
-    SimpleOrderManager simpleOrderManager = new SimpleOrderManager(ordersInventory);
+    OrdersInventory ordersInventory = new OrdersInventory(); // 
+    private List<Account> authorizedAccounts = new ArrayList<>();; // contains the accounts that exist in the system , to authorize to create the user
+    SimpleOrderManager simpleOrderManager = new SimpleOrderManager();
 
     public OrderService(OrdersInventory o) {
         this.ordersInventory = o;
@@ -74,6 +73,7 @@ public class OrderService{
             }
         }
         this.authorizedAccounts = authorizedAccounts;
+        //simpleOrderManager.authorizedAccounts = this.authorizedAccounts;
 
         String feedBack = "";
         if (temp.isEmpty())
@@ -90,7 +90,7 @@ public class OrderService{
 
 
     public String makeSimple(ProductService productService, List<PairDto> orderComp){
-        return simpleOrderManager.makeSimpleProduct(productService, orderComp);
+        return simpleOrderManager.makeSimpleProduct(productService, orderComp,ordersInventory,authorizedAccounts);
         // ProductRepo productRepo = productService.repos;
         // PlacedNotification placementNotification  = new PlacedNotification();
         // SimpleOrder newOrder = new SimpleOrder();
