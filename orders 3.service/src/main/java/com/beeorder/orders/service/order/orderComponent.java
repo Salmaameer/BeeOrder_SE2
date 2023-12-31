@@ -8,6 +8,6 @@ import lombok.Setter;
 public abstract class orderComponent
 {
     int id;
-    String creationDate;
     public abstract orderComponent viewDetails();
+
 }

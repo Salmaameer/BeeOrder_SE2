@@ -7,6 +7,6 @@ import java.util.List;
 
 @Component
 public class OrdersInventory {
-    List<Order> orders = new ArrayList<Order>();
+    List<SimpleOrder> orders = new ArrayList<SimpleOrder>();
 
 }

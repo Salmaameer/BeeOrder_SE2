@@ -14,58 +14,45 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OrderService implements OrderComponentService {
+public class OrderService{
     OrdersInventory ordersInventory;
+    private List<Account> authorizedAccounts;
 
     public OrderService(OrdersInventory o) {
         this.ordersInventory = o;
     }
 
-    @Override
-    public void addComponent(int id, orderComponent comp) {
 
-        for (Order o : ordersInventory.orders) {
-            if (o.getId() == id) {
-                o.orderComponents.add(comp);
-            }
+//    public void addComponent(int id, SimpleOrder comp) {
+//
+//        for (Order o : ordersInventory.orders) {
+//            if (o.getId() == id) {
+//                o.orderComponents.add(comp);
+//            }
+//
+//        }
+//    }
+//
+//
+//    public String removeComponent(int id, SimpleOrder comp) {
+//
+//        for (Order o : ordersInventory.orders) {
+//            if (o.getId() == id) {
+//                o.orderComponents.remove(comp);
+//                return ("Product deleted");
+//            }
+//        }
+//
+//        return ("This product doesn't exist");
+//
+//    }
 
-        }
-    }
 
-    @Override
-    public String removeComponent(int id, orderComponent comp) {
-
-        for (Order o : ordersInventory.orders) {
-            if (o.getId() == id) {
-                o.orderComponents.remove(comp);
-                return ("Product deleted");
-            }
-        }
-
-        return ("This product doesn't exist");
-
-    }
-
-    // public Order makeOrder(List<orderComponent> orderComp){
-    // //initialize new id
-    // Order newOrder = new Order();
-    // Random rand = new Random();
-    // int randomInt = rand.nextInt(10000);
-    // newOrder.id = randomInt;
-    // //newOrder.creationDate()
-    //
-    // for (orderComponent comp : orderComp){
-    // newOrder.orderComponents.add(comp);
-    // }
-    //
-    // return newOrder;
-    // }
-    //
-    // }
     public boolean isExist(int id) {
         return true;
     }
 
+    // this function authorize the accounts that orders will be assigned to it
     public String authorizeUsers(AccountService accService, List<String> userNames) {
         List<Account> authorizedAccounts = new ArrayList<>();
         List<String> temp = new ArrayList<String>(userNames);
@@ -80,6 +67,7 @@ public class OrderService implements OrderComponentService {
                 }
             }
         }
+        this.authorizedAccounts = authorizedAccounts;
 
         String feedBack = "";
         if (temp.isEmpty())
@@ -94,60 +82,124 @@ public class OrderService implements OrderComponentService {
         return feedBack;
     }
 
-    public Order makeOrder(ProductService productService, List<PairDto> orderComp) {
+
+    public SimpleOrder makeSimple(ProductService productService, List<PairDto> orderComp){
         ProductRepo productRepo = productService.repos;
 
-        // initialize new id
-        Order newOrder = new Order();
+        SimpleOrder newOrder = new SimpleOrder();
+        int randomId = generateID();
+        newOrder.setId(randomId);
+        newOrder.orderProduct = new ArrayList<>();
+
+        // the products that order contains
+        List<Product> allProducts = new ArrayList<>();
+
+        // function to fill the products list
+        allProducts = productsList(productRepo, orderComp);
+
+        // update the total cost
+        for (Product p : allProducts){
+            newOrder.setTotalCost(newOrder.getTotalCost() + p.getPrice());
+        }
+        newOrder.setOrderProduct(allProducts);
+        newOrder.setOrderAccount(authorizedAccounts.get(0));
+
+        return newOrder;
+    }
+public Order makeCompoundOrder(ProductService productService, List<PairDto> orderComp) {
+    ProductRepo productRepo = productService.repos;
+
+
+    // generate compound order to add simple orders to it
+    Order newOrder = new Order();
+    int randomId = generateID();
+    newOrder.setId(randomId);
+    newOrder.orderComponents = new ArrayList<>();
+
+    // the products that order contains
+    List<Product> allProducts = new ArrayList<>();
+
+    // function to fill the products list
+    allProducts = productsList(productRepo, orderComp);
+
+    newOrder = assignProductsToOrders(allProducts ,this.authorizedAccounts);
+
+    return newOrder;
+}
+
+public Order assignProductsToOrders(List<Product> ourProducts , List<Account> accounts){
+    int noAcc = accounts.size();
+    int productNo = ourProducts.size();
+    int noProductsPerorder = productNo / noAcc;
+    int num = productNo % noAcc;
+
+    // make the compound order that will contains the simple orders
+    Order compoundOrder = new Order();
+
+    int i = 0 , accCounter = 0;
+    // while loop to divide the products between all accounts
+    while (i < productNo) {
+        SimpleOrder simpleOrder = new SimpleOrder();
+
+        // to handel the remaining of the products
+        while (num != 0) {
+            simpleOrder.getOrderProduct().add(ourProducts.get(i));
+            simpleOrder.setTotalCost(simpleOrder.getTotalCost() + ourProducts.get(i).getPrice());
+            i++;
+            num--;
+        }
+        // this loop the desired products to the simple order
+        for (int j = i; j < i + noProductsPerorder; j++) {
+            simpleOrder.getOrderProduct().add(ourProducts.get(j));
+            simpleOrder.setTotalCost(simpleOrder.getTotalCost() + ourProducts.get(i).getPrice());
+        }
+
+        if ( isEnoughBalance(accounts.get(accCounter), simpleOrder.getTotalCost())){
+            simpleOrder.setId(generateID());
+            simpleOrder.setOrderAccount(accounts.get(accCounter));
+            compoundOrder.getOrderComponents().add(simpleOrder);
+
+        }
+        accCounter++;
+        i += noProductsPerorder;
+    }
+
+
+    return compoundOrder;
+}
+
+
+
+
+
+    public  boolean isEnoughBalance(Account acc , double totalAmount){
+        return totalAmount+50 < acc.getBalance();
+    }
+    public int generateID(){
         Random rand = new Random();
         int randomInt = rand.nextInt(10000);
-        newOrder.id = randomInt;
-        // newOrder.creationDate()
-        newOrder.orderComponents = new ArrayList<>();
+        return randomInt;
 
+    }
+    public List<Product> productsList(ProductRepo productRepo ,List<PairDto> orderComp ){
+
+        List<Product> allProducts = new ArrayList<>();
         for (PairDto pair : orderComp) {
             for (Product prod : productRepo.products) {
                 if (pair.getName().equals(prod.getName())) {
                     if (prod.getQuantity() >= pair.getQuantity()) {
-                        newOrder.orderComponents.add(prod);
+                        allProducts.add(prod);
                         prod.setQuantity(prod.getQuantity() - pair.getQuantity()); // update the quantity
                     }
-
                 } else {
                     System.out.println("Can't add this item to the order");
                 }
             }
         }
 
-        return newOrder;
+        return allProducts;
     }
 
-    public Order assignProductsToAccounts(Order compositeOrder, List<Account> accounts) {
-        if (accounts.size() == 1) {
-            return compositeOrder;
-        } else {
-            int noAcc = accounts.size();
-            int productNo = compositeOrder.getOrderComponents().size();
-            int noProductsPerorder = productNo / noAcc;
-            Order Allorders = new Order();
-            int num = productNo % noAcc;
-            List<orderComponent> products = compositeOrder.getOrderComponents();
-            int i = 0;
-            while (i < productNo) {
-                Order simpleOrder = new Order();
-                while (num != 0) {
-                    simpleOrder.orderComponents.add(products.get(i));
-                    i++;
-                    num--;
-                }
-                for (int j = i; j < i + noProductsPerorder; j++) {
-                    simpleOrder.orderComponents.add(products.get(j));
-                }
-                Allorders.getOrderComponents().add(simpleOrder);
-                i+=noProductsPerorder;
-            }
-            return Allorders;
-        }
-    }
+
 
 }
