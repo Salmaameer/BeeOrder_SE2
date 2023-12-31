@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 // class representing simple order or leaf in the composite pattern used
 // where it only contains one order and cannot have other orders, only products
 @Getter @Setter
@@ -23,6 +24,9 @@ public class SimpleOrder extends orderComponent {
     // default constructor setting the creation time of this product. 
     public SimpleOrder(){
         creationTime = LocalTime.now();
+        Random rand = new Random();
+        int randomInt = rand.nextInt(10000);
+        setId(randomInt);
     }
 
     public orderComponent viewDetails() {

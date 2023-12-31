@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.time.Duration;
 import java.util.List;
 import java.util.Random;
+
+import com.beeorder.orders.service.OrdersManager.SimpleOrderManager;
 import com.beeorder.orders.service.account.Account;
 import com.beeorder.orders.service.account.AccountRepo;
 import com.beeorder.orders.service.account.AccountService;
@@ -18,6 +20,8 @@ import org.springframework.stereotype.Service;
 public class OrderService{
     OrdersInventory ordersInventory; // 
     private List<Account> authorizedAccounts; // contains the accounts that exist in the system , to authorize to create the user
+
+    SimpleOrderManager simpleOrderManager = new SimpleOrderManager(ordersInventory);
 
     public OrderService(OrdersInventory o) {
         this.ordersInventory = o;
@@ -86,51 +90,53 @@ public class OrderService{
 
 
     public String makeSimple(ProductService productService, List<PairDto> orderComp){
-        ProductRepo productRepo = productService.repos;
-        PlacedNotification placementNotification  = new PlacedNotification();
-        SimpleOrder newOrder = new SimpleOrder();
-        int randomId = generateID();
-        newOrder.setId(randomId);
-        newOrder.orderProduct = new ArrayList<>();
+        return simpleOrderManager.makeSimpleProduct(productService, orderComp);
+        // ProductRepo productRepo = productService.repos;
+        // PlacedNotification placementNotification  = new PlacedNotification();
+        // SimpleOrder newOrder = new SimpleOrder();
+        // int randomId = generateID();
+        // newOrder.setId(randomId);
+        // newOrder.orderProduct = new ArrayList<>();
 
-        // the products that order contains
-        List<Product> allProducts = new ArrayList<>();
+        // // the products that order contains
+        // List<Product> allProducts = new ArrayList<>();
 
-        // function to fill the products list
-        allProducts = productsList(productRepo, orderComp);
+        // // function to fill the products list
+        // allProducts = productsList(productRepo, orderComp);
 
-        // update the total cost
-        for (Product p : allProducts){
-            newOrder.setTotalCost(newOrder.getTotalCost() + p.getPrice());
-        }
-        newOrder.setOrderProduct(allProducts);
-        newOrder.setOrderAccount(authorizedAccounts.get(0));
-        ordersInventory.orders.add(newOrder);
-        placementNotification.sendNotification(newOrder);
-        return "Order has been created successfully with ID "+ newOrder.getId() + " with total cost = "+ newOrder.getTotalCost()+ " + 50 for shippment";
+        // // update the total cost
+        // for (Product p : allProducts){
+        //     newOrder.setTotalCost(newOrder.getTotalCost() + p.getPrice());
+        // }
+        // newOrder.setOrderProduct(allProducts);
+        // newOrder.setOrderAccount(authorizedAccounts.get(0));
+        // ordersInventory.orders.add(newOrder);
+        // placementNotification.sendNotification(newOrder);
+        // return "Order has been created successfully with ID "+ newOrder.getId() + " with total cost = "+ newOrder.getTotalCost()+ " + 50 for shippment";
     }
-public String makeCompoundOrder(ProductService productService, List<PairDto> orderComp) {
-    ProductRepo productRepo = productService.repos;
-    // generate compound order to add simple orders to it
-    Order newOrder = new Order();
-    int randomId = generateID();
-    System.out.println(newOrder.getId());
 
-    newOrder.orderComponents = new ArrayList<>();
+// public String makeCompoundOrder(ProductService productService, List<PairDto> orderComp) {
+//     ProductRepo productRepo = productService.repos;
+//     // generate compound order to add simple orders to it
+//     Order newOrder = new Order();
+//     int randomId = generateID();
+//     System.out.println(newOrder.getId());
 
-    // the products that order contains
-    List<Product> allProducts = new ArrayList<>();
+//     newOrder.orderComponents = new ArrayList<>();
 
-    // function to fill the products list
-    allProducts = productsList(productRepo, orderComp);
+//     // the products that order contains
+//     List<Product> allProducts = new ArrayList<>();
 
-    newOrder = assignProductsToOrders(allProducts ,this.authorizedAccounts);
-    newOrder.setId(randomId);
-    ordersInventory.orders.add(newOrder);
+//     // function to fill the products list
+//     allProducts = productsList(productRepo, orderComp);
 
-    return "Order has been created successfully with ID "+ newOrder.getId() ;
+//     newOrder = assignProductsToOrders(allProducts ,this.authorizedAccounts);
+//     newOrder.setId(randomId);
+//     ordersInventory.orders.add(newOrder);
 
-}
+//     return "Order has been created successfully with ID "+ newOrder.getId() ;
+
+// }
 //used for assigning products to orders in compound order
 // as if it is a set of simple orders stored all in the compound order
 public Order assignProductsToOrders(List<Product> ourProducts , List<Account> accounts){
@@ -187,29 +193,29 @@ public Order assignProductsToOrders(List<Product> ourProducts , List<Account> ac
 
     }
 
-    public List<Product> productsList(ProductRepo productRepo ,List<PairDto> orderComp ){
+    // public List<Product> productsList(ProductRepo productRepo ,List<PairDto> orderComp ){
 
-        List<Product> allProducts = new ArrayList<>();
-        for (PairDto pair : orderComp) {
-            for (Product prod : productRepo.products) {
-                if (pair.getName().equals(prod.getName())) {
-                    if (prod.getQuantity() >= pair.getQuantity()) {
+    //     List<Product> allProducts = new ArrayList<>();
+    //     for (PairDto pair : orderComp) {
+    //         for (Product prod : productRepo.products) {
+    //             if (pair.getName().equals(prod.getName())) {
+    //                 if (prod.getQuantity() >= pair.getQuantity()) {
 
-                        // set the same found product but with asked user  quantity
-                        Product userPro = prod;
-                        userPro.setQuantity(pair.getQuantity());
-                        allProducts.add(userPro);
-                        //update the quantity in the inventory
-                        prod.setQuantity(prod.getQuantity() - pair.getQuantity()); // update the quantity
-                    }
-                } else {
-                    System.out.println("Can't add this item to the order");
-                }
-            }
-        }
+    //                     // set the same found product but with asked user  quantity
+    //                     Product userPro = prod;
+    //                     userPro.setQuantity(pair.getQuantity());
+    //                     allProducts.add(userPro);
+    //                     //update the quantity in the inventory
+    //                     prod.setQuantity(prod.getQuantity() - pair.getQuantity()); // update the quantity
+    //                 }
+    //             } else {
+    //                 System.out.println("Can't add this item to the order");
+    //             }
+    //         }
+    //     }
 
-        return allProducts;
-    }
+    //     return allProducts;
+    // }
 
     public String cancelOrder(int id, ProductService prService){
         for (orderComponent order : ordersInventory.orders) {
@@ -276,6 +282,7 @@ public Order assignProductsToOrders(List<Product> ourProducts , List<Account> ac
                 if (o.getId() == order.getId()){
                     order.setStatus(OrderStatus.CANCELLED);
                     o = order;
+                    break;
                 }
             }
 

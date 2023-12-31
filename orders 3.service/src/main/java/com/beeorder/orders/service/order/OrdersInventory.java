@@ -11,6 +11,6 @@ import java.util.List;
 @Component
 @Getter @Setter
 public class OrdersInventory {
-    List<orderComponent> orders = new ArrayList<orderComponent>();
+    public List<orderComponent> orders = new ArrayList<orderComponent>();
 
 }
