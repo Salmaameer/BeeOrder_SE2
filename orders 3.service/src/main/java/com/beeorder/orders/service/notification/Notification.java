@@ -2,21 +2,18 @@ package com.beeorder.orders.service.notification;
 
 import com.beeorder.orders.service.order.Order;
 import com.beeorder.orders.service.order.SimpleOrder;
+import com.beeorder.orders.service.order.orderComponent;
+
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.List;
 
 @Setter @Getter
 public abstract class Notification {
-    String language;
     int id;
+    String language;
     String channel;
-    SimpleOrder myOrder;
-    HashMap<String, SimpleOrder> placeHolders = new HashMap<>();
+    String message;
 
-    public abstract void  createNotificationContent();
-
-    
+    public abstract void sendNotification(SimpleOrder order);
 }

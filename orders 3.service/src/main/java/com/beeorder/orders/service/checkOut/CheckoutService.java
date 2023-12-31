@@ -1,6 +1,7 @@
 package com.beeorder.orders.service.checkOut;
 
 import com.beeorder.orders.service.account.Account;
+import com.beeorder.orders.service.notification.ShipmentNotification;
 import com.beeorder.orders.service.order.OrdersInventory;
 import com.beeorder.orders.service.order.orderComponent;
 
@@ -12,6 +13,8 @@ public class CheckoutService
 {
     @Autowired
     private OrdersInventory ordersInventory;
+
+    ShipmentNotification notification = new ShipmentNotification();
     
     public orderComponent getOrder(int id)
     {
@@ -24,6 +27,7 @@ public class CheckoutService
         }
         return null;
     }
+
     public String checkOutProcess(int id )
     {
         orderComponent myOrder = getOrder(id);
@@ -35,6 +39,8 @@ public class CheckoutService
         {
             myOrder.deductFromBalance();
         }
+
+        // notification.sendNotification(myOrder);
         return "order has been successfully placed and ready to be shipped:)";
     }
 }

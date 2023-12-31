@@ -1,10 +1,8 @@
 package com.beeorder.orders.service.order;
-
 import com.beeorder.orders.service.account.Account;
 import com.beeorder.orders.service.product.Product;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.List;
 // class representing simple order or leaf in the composite pattern used
@@ -22,12 +20,13 @@ public class SimpleOrder extends orderComponent {
         }
         return null;
     }
+
     public void deductFromBalance()
     {
         double currBalance = orderAccount.getBalance();
         currBalance -= ( totalCost + 50 ); // order cost+ shippment fees
         orderAccount.setBalance(currBalance);
         System.out.println(orderAccount.getBalance());
-        
+        notification.sendNotification(this);
     }
 }

@@ -6,5 +6,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationQueue {
-    PriorityQueue<Notification> notifications = new PriorityQueue<>();
+    public PriorityQueue<Notification> placementNotifications = new PriorityQueue<>();
+    public PriorityQueue<Notification> shipmentNotifications = new PriorityQueue<>();
 }
