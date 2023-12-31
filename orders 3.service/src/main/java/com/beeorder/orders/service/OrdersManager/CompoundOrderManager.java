@@ -1,12 +1,12 @@
 package com.beeorder.orders.service.OrdersManager;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
+import org.springframework.stereotype.Service;
 import com.beeorder.orders.service.account.Account;
 import com.beeorder.orders.service.notification.PlacedNotification;
 import com.beeorder.orders.service.order.Order;
+import com.beeorder.orders.service.order.OrderStatus;
 import com.beeorder.orders.service.order.OrdersInventory;
 import com.beeorder.orders.service.order.PairDto;
 import com.beeorder.orders.service.order.SimpleOrder;
@@ -14,14 +14,14 @@ import com.beeorder.orders.service.product.Product;
 import com.beeorder.orders.service.product.ProductRepo;
 import com.beeorder.orders.service.product.ProductService;
 
+
+@Service
 public class CompoundOrderManager {
     public String createCompoundOrder(ProductService productService, List<PairDto> orderComp, List<Account> authorizedAccounts, OrdersInventory ordersInventory) {
         ProductRepo productRepo = productService.repos;
         // generate compound order to add simple orders to it
         Order newOrder = new Order();
         int randomId = generateID();
-        System.out.println(newOrder.getId());
-
         newOrder.orderComponents = new ArrayList<>();
 
         // the products that order contains
@@ -71,6 +71,7 @@ public class CompoundOrderManager {
             if (isEnoughBalance(accounts.get(accCounter), simpleOrder.getTotalCost())) {
                 // sending notification for every simple order found in the compound order
                 placementNotification.sendNotification(simpleOrder);
+                simpleOrder.setStatus(OrderStatus.PLACED);
                 simpleOrder.setId(generateID());
                 simpleOrder.setOrderAccount(accounts.get(accCounter));
                 compoundOrder.getOrderComponents().add(simpleOrder);
@@ -94,7 +95,6 @@ public class CompoundOrderManager {
     }
 
     public List<Product> productsList(ProductRepo productRepo, List<PairDto> orderComp) {
-
         List<Product> allProducts = new ArrayList<>();
         for (PairDto pair : orderComp) {
             for (Product prod : productRepo.products) {
@@ -108,12 +108,9 @@ public class CompoundOrderManager {
                         // update the quantity in the inventory
                         prod.setQuantity(prod.getQuantity() - pair.getQuantity()); // update the quantity
                     }
-                } else {
-                    System.out.println("Can't add this item to the order");
                 }
             }
         }
-
         return allProducts;
     }
 }

@@ -56,8 +56,7 @@ public class OrderController {
 
                 return orderService.makeSimple(prService,request.getOrderComponents());
             }
-            return null;
-            // return orderService.makeCompoundOrder(prService,request.getOrderComponents());
+            return orderService.makeCompoundOrder(prService,request.getOrderComponents());
         }
     }
 

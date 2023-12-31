@@ -35,6 +35,8 @@ public class Order extends orderComponent{
             order.getOrderAccount().setBalance(currBalance);
             System.out.println(order.getOrderAccount().getBalance());
             notification.sendNotification(order);
+            order.setStatus(OrderStatus.SHIPPED);
+
         }
     }
 }

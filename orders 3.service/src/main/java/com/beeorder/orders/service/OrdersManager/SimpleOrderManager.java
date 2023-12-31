@@ -1,38 +1,37 @@
 package com.beeorder.orders.service.OrdersManager;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.time.LocalTime;
+import java.time.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.beeorder.orders.service.account.Account;
 import com.beeorder.orders.service.account.AccountRepo;
 import com.beeorder.orders.service.account.AccountService;
+import com.beeorder.orders.service.notification.Notification;
+import com.beeorder.orders.service.notification.NotificationQueue;
 import com.beeorder.orders.service.notification.PlacedNotification;
+import com.beeorder.orders.service.order.OrderStatus;
 import com.beeorder.orders.service.order.OrdersInventory;
 import com.beeorder.orders.service.order.PairDto;
 import com.beeorder.orders.service.order.SimpleOrder;
+import com.beeorder.orders.service.order.orderComponent;
 import com.beeorder.orders.service.product.Product;
 import com.beeorder.orders.service.product.ProductRepo;
 import com.beeorder.orders.service.product.ProductService;
+ 
 
 @Service
 public class SimpleOrderManager {
-    // public List<Account> authorizedAccounts ;
-    // @Autowired
-    // OrdersInventory ordersInventory; 
+    @Autowired
+    NotificationQueue queue = new NotificationQueue();
+    
 
-    // public SimpleOrderManager(OrdersInventory ordersInv,List<Account> authorized ){
-    //     this.ordersInventory = ordersInv;
-    //     this.authorizedAccounts = authorized;
-    // }
-
-    public String makeSimpleProduct(ProductService productService, List<PairDto> orderComp,OrdersInventory ordersInv,List<Account> authorized){
+    public String createSimpleOrder(ProductService productService, List<PairDto> orderComp,OrdersInventory ordersInv,List<Account> authorized){
         ProductRepo productRepo = productService.repos;
         PlacedNotification placementNotification  = new PlacedNotification();
+        
         SimpleOrder newOrder = new SimpleOrder();
-        // int randomId = generateID();
-        // newOrder.setId(randomId);
         newOrder.orderProduct = new ArrayList<>();
 
         // the products that order contains
@@ -46,12 +45,14 @@ public class SimpleOrderManager {
             newOrder.setTotalCost(newOrder.getTotalCost() + p.getPrice());
         }
         newOrder.setOrderProduct(allProducts);
+        System.out.println(newOrder.getOrderProduct());
         newOrder.setOrderAccount(authorized.get(0));
+        System.out.println(newOrder.getOrderAccount());
         ordersInv.orders.add(newOrder);
         placementNotification.sendNotification(newOrder);
+        newOrder.setStatus(OrderStatus.PLACED);
         return "Order has been created successfully with ID "+ newOrder.getId() + " with total cost = "+ newOrder.getTotalCost()+ " + 50 for shippment";
     }
-
 
     public List<Product> productsList(ProductRepo productRepo ,List<PairDto> orderComp ){
         List<Product> allProducts = new ArrayList<>();
@@ -76,34 +77,79 @@ public class SimpleOrderManager {
         return allProducts;
     }
 
-    // public String authorizeUsers(AccountService accService, List<String> userNames) {
-    //     List<Account> authorizedAccounts = new ArrayList<>();
-    //     List<String> temp = new ArrayList<String>(userNames);
+    public String cancelProcess(SimpleOrder order,  ProductService prService , OrdersInventory ordersInventory){
+        LocalTime currentTime =  LocalTime.now();
+        Duration duration = Duration.between(order.getCreationTime() , currentTime);
+        Long minutes = duration.toMinutes() % 60;
+        if (minutes <= 1) {
+            /*
+            cancellation process
+            1- return deducted money to the account DONE
+            2- change the status of the order to CANCELED DONE
+            3- remove from notification queue
+            4- return the quantity of the products DONE
+            5- give feedback
+            */
+            double accBal = order.getOrderAccount().getBalance();
+        
+            // shipment fees will not be returned ;)
+            order.getOrderAccount().setBalance(accBal + order.getTotalCost()); // return the deducted money to the account.
 
-    //     AccountRepo accRepo = accService.accountRepo;
-    //     //authorize by checking if the username exists in the accounts repo
-    //     for (Account acc : accRepo.accounts) {
-    //         for (String name : userNames) {
-    //             System.out.println(name);
-    //             if (name.equals(acc.getUserName())) {
-    //                 authorizedAccounts.add(acc);
-    //                 temp.remove(name);
-    //             }
-    //         }
-    //     }
-    //     this.authorizedAccounts = authorizedAccounts;
 
-    //     String feedBack = "";
-    //     if (temp.isEmpty())
-    //         return ("All users Found");
-    //     else {
-    //         for (String n : temp) {
-    //             feedBack += n;
-    //             feedBack += " ";
-    //         }
-    //         feedBack += "Not found";
-    //     }
-    //     return feedBack;
-    // }
-    
+            List<Product> orderProducts = order.getOrderProduct();
+
+            List<Product> inventroyPro = prService.repos.products;
+
+            // return the previous quantity of the products
+            for (Product product : order.getOrderProduct()){
+                for (Product invenPro : inventroyPro){
+                    if (product.getId() == invenPro.getId()){
+                        int currentQuan = invenPro.getQuantity();
+                        //return the previous quantity of the inventory product
+                        invenPro.setQuantity(currentQuan + product.getQuantity());
+                    }
+                }
+
+            }
+
+            // change order status
+            for ( orderComponent o : ordersInventory.orders){
+                if (o.getId() == order.getId()){
+                    order.setStatus(OrderStatus.CANCELLED);
+                    o = order;
+                    break;
+                }
+            }
+
+            // remove this order' notification from notification queue.
+            // 1- check the status of the order
+                // -> if it placed, go to placementNotifications queue.
+                // -> if it shipped, go to shippingNotification queue.
+            // 2- search for the notification (with id) and remove it
+
+            if(order.getStatus() == OrderStatus.PLACED){
+                for (Notification notification : queue.placementNotifications) {
+                    if(notification.getId() == order.getId()){
+                        System.out.println(notification.getMessage() + "has been deleted");
+                        queue.placementNotifications.remove(notification);
+                        break;
+                    }
+                }
+            }else if(order.getStatus() == OrderStatus.SHIPPED){
+                for (Notification notification : queue.shipmentNotifications) {
+                    if(notification.getId() == order.getId()){
+                        System.out.println(notification.getMessage() + "has been deleted");
+                        queue.shipmentNotifications.remove(notification);
+                        break;
+                    }
+                }
+            }
+            return "Order has been canceled!";
+        }else{
+            System.out.println(minutes);
+            return "You can not cancel the order!";
+        }
+        // return "";
+    }
 }
+

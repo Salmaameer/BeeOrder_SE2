@@ -30,6 +30,6 @@ public class PlacedNotification extends Notification {
         this.setChannel(order.getOrderAccount().getNotificationChannel());
         queue.placementNotifications.add(this);
         System.out.println(formattedMsg);
-        order.setStatus(OrderStatus.PLACED);
+        
     }
 }

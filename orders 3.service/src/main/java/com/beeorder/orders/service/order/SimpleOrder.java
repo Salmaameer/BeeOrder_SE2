@@ -43,5 +43,6 @@ public class SimpleOrder extends orderComponent {
         orderAccount.setBalance(currBalance);
         System.out.println(orderAccount.getBalance());
         notification.sendNotification(this);
+        this.setStatus(OrderStatus.SHIPPED);
     }
 }
