@@ -1,5 +1,6 @@
 package com.beeorder.orders.service.account;
 
+import com.beeorder.orders.service.notification.Notification;
 import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.Getter;
@@ -21,6 +22,9 @@ public class Account {
     private String phone;
     private double balance;
     private String password;
+
+    private String notificationChannel;
+    private String language;
 
 
     public Account(){

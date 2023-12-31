@@ -5,6 +5,6 @@ import java.util.PriorityQueue;
 import org.springframework.stereotype.Component;
 
 @Component
-public class notificationQueue {
-    PriorityQueue<notification> notifications = new PriorityQueue<>();
+public class NotificationQueue {
+    PriorityQueue<Notification> notifications = new PriorityQueue<>();
 }

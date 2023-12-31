@@ -1,5 +1,5 @@
 package com.beeorder.orders.service.notification;
 
-public class notificationService {
+public class NotificationService {
     
 }
