@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 
+import com.beeorder.orders.service.OrdersManager.CompoundOrderManager;
 import com.beeorder.orders.service.OrdersManager.SimpleOrderManager;
 import com.beeorder.orders.service.account.Account;
 import com.beeorder.orders.service.account.AccountRepo;
@@ -22,35 +23,11 @@ public class OrderService{
     private List<Account> authorizedAccounts; // contains the accounts that exist in the system , to authorize to create the user
 
     SimpleOrderManager simpleOrderManager = new SimpleOrderManager(ordersInventory);
+    CompoundOrderManager compoundOrderManager = new CompoundOrderManager();
 
     public OrderService(OrdersInventory o) {
         this.ordersInventory = o;
     }
-
-
-//    public void addComponent(int id, SimpleOrder comp) {
-//
-//        for (Order o : ordersInventory.orders) {
-//            if (o.getId() == id) {
-//                o.orderComponents.add(comp);
-//            }
-//
-//        }
-//    }
-//
-//
-//    public String removeComponent(int id, SimpleOrder comp) {
-//
-//        for (Order o : ordersInventory.orders) {
-//            if (o.getId() == id) {
-//                o.orderComponents.remove(comp);
-//                return ("Product deleted");
-//            }
-//        }
-//
-//        return ("This product doesn't exist");
-//
-//    }
 
 
     public boolean isExist(int id) {
@@ -91,31 +68,10 @@ public class OrderService{
 
     public String makeSimple(ProductService productService, List<PairDto> orderComp){
         return simpleOrderManager.makeSimpleProduct(productService, orderComp);
-        // ProductRepo productRepo = productService.repos;
-        // PlacedNotification placementNotification  = new PlacedNotification();
-        // SimpleOrder newOrder = new SimpleOrder();
-        // int randomId = generateID();
-        // newOrder.setId(randomId);
-        // newOrder.orderProduct = new ArrayList<>();
-
-        // // the products that order contains
-        // List<Product> allProducts = new ArrayList<>();
-
-        // // function to fill the products list
-        // allProducts = productsList(productRepo, orderComp);
-
-        // // update the total cost
-        // for (Product p : allProducts){
-        //     newOrder.setTotalCost(newOrder.getTotalCost() + p.getPrice());
-        // }
-        // newOrder.setOrderProduct(allProducts);
-        // newOrder.setOrderAccount(authorizedAccounts.get(0));
-        // ordersInventory.orders.add(newOrder);
-        // placementNotification.sendNotification(newOrder);
-        // return "Order has been created successfully with ID "+ newOrder.getId() + " with total cost = "+ newOrder.getTotalCost()+ " + 50 for shippment";
     }
 
-// public String makeCompoundOrder(ProductService productService, List<PairDto> orderComp) {
+    public String makeCompoundOrder(ProductService productService, List<PairDto> orderComp) {
+        return compoundOrderManager.createCompoundOrder(productService, orderComp, authorizedAccounts, ordersInventory);
 //     ProductRepo productRepo = productService.repos;
 //     // generate compound order to add simple orders to it
 //     Order newOrder = new Order();
@@ -136,62 +92,62 @@ public class OrderService{
 
 //     return "Order has been created successfully with ID "+ newOrder.getId() ;
 
-// }
+    }
 //used for assigning products to orders in compound order
 // as if it is a set of simple orders stored all in the compound order
-public Order assignProductsToOrders(List<Product> ourProducts , List<Account> accounts){
-    int noAcc = accounts.size();
-    int productNo = ourProducts.size();
-    int noProductsPerorder = productNo / noAcc;
-    int num = productNo % noAcc;
-    PlacedNotification placementNotification = new PlacedNotification();
-    // make the compound order that will contains the simple orders
-    Order compoundOrder = new Order();
+// public Order assignProductsToOrders(List<Product> ourProducts , List<Account> accounts){
+//     int noAcc = accounts.size();
+//     int productNo = ourProducts.size();
+//     int noProductsPerorder = productNo / noAcc;
+//     int num = productNo % noAcc;
+//     PlacedNotification placementNotification = new PlacedNotification();
+//     // make the compound order that will contains the simple orders
+//     Order compoundOrder = new Order();
 
-    int i = 0 , accCounter = 0;
-    // while loop to divide the products between all accounts
-    while (i < productNo) {
-        SimpleOrder simpleOrder = new SimpleOrder();
+//     int i = 0 , accCounter = 0;
+//     // while loop to divide the products between all accounts
+//     while (i < productNo) {
+//         SimpleOrder simpleOrder = new SimpleOrder();
 
-        // to handel the remaining of the products
-        while (num != 0) {
-            simpleOrder.getOrderProduct().add(ourProducts.get(i));
-            //calculate product total depends on quantity
-            double productTotal = ourProducts.get(i).getPrice() * ourProducts.get(i).getQuantity();
-            simpleOrder.setTotalCost(simpleOrder.getTotalCost() + productTotal );
-            i++;
-            num--;
-        }
-        // this loop the desired products to the simple order
-        for (int j = i; j < i + noProductsPerorder; j++) {
-            simpleOrder.getOrderProduct().add(ourProducts.get(j));
-            simpleOrder.setTotalCost(simpleOrder.getTotalCost() + ourProducts.get(i).getPrice());
-        }
+//         // to handel the remaining of the products
+//         while (num != 0) {
+//             simpleOrder.getOrderProduct().add(ourProducts.get(i));
+//             //calculate product total depends on quantity
+//             double productTotal = ourProducts.get(i).getPrice() * ourProducts.get(i).getQuantity();
+//             simpleOrder.setTotalCost(simpleOrder.getTotalCost() + productTotal );
+//             i++;
+//             num--;
+//         }
+//         // this loop the desired products to the simple order
+//         for (int j = i; j < i + noProductsPerorder; j++) {
+//             simpleOrder.getOrderProduct().add(ourProducts.get(j));
+//             simpleOrder.setTotalCost(simpleOrder.getTotalCost() + ourProducts.get(i).getPrice());
+//         }
 
-        if ( isEnoughBalance(accounts.get(accCounter), simpleOrder.getTotalCost())){
-            //sending notification for every simple order found in the compound order
-            placementNotification.sendNotification(simpleOrder);
-            simpleOrder.setId(generateID());
-            simpleOrder.setOrderAccount(accounts.get(accCounter));
-            compoundOrder.getOrderComponents().add(simpleOrder);
-        }
+//         if ( isEnoughBalance(accounts.get(accCounter), simpleOrder.getTotalCost())){
+//             //sending notification for every simple order found in the compound order
+//             placementNotification.sendNotification(simpleOrder);
+//             simpleOrder.setId(generateID());
+//             simpleOrder.setOrderAccount(accounts.get(accCounter));
+//             compoundOrder.getOrderComponents().add(simpleOrder);
+//         }
 
-        accCounter++;
-        i += noProductsPerorder;
-    }
-    return compoundOrder;
-}
+//         accCounter++;
+//         i += noProductsPerorder;
+//     }
+//     return compoundOrder;
+// }
 
-    public  boolean isEnoughBalance(Account acc , double totalAmount){
-        return totalAmount+50 < acc.getBalance();
-    }
+//     public  boolean isEnoughBalance(Account acc , double totalAmount){
+//         return totalAmount+50 < acc.getBalance();
+//     }
 
-    public int generateID(){
-        Random rand = new Random();
-        int randomInt = rand.nextInt(10000);
-        return randomInt;
+//     public int generateID(){
+//         Random rand = new Random();
+//         int randomInt = rand.nextInt(10000);
+//         return randomInt;
 
-    }
+//     }
 
     // public List<Product> productsList(ProductRepo productRepo ,List<PairDto> orderComp ){
 
@@ -238,9 +194,6 @@ public Order assignProductsToOrders(List<Product> ourProducts , List<Account> ac
         }
         return "";
     }
-
-
-
 
 
     public void cancelProcess(SimpleOrder order,  ProductService prService){
