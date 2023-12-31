@@ -1,11 +1,12 @@
 package com.beeorder.orders.service.notification;
 
-import java.util.PriorityQueue;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationQueue {
-    public PriorityQueue<Notification> placementNotifications = new PriorityQueue<>();
-    public PriorityQueue<Notification> shipmentNotifications = new PriorityQueue<>();
+    public Queue<Notification> placementNotifications = new LinkedList<>();
+    public Queue<Notification> shipmentNotifications = new LinkedList<>();
 }

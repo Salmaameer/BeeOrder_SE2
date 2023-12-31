@@ -7,7 +7,7 @@ import com.beeorder.orders.service.product.Product;
 @Service
 public class PlacedNotification extends Notification {
     @Autowired    
-    NotificationQueue queue;
+    NotificationQueue queue = new NotificationQueue();
 
     @Override
     public void sendNotification(SimpleOrder order) {
@@ -27,5 +27,6 @@ public class PlacedNotification extends Notification {
         this.setLanguage(order.getOrderAccount().getLanguage());
         this.setChannel(order.getOrderAccount().getNotificationChannel());
         queue.placementNotifications.add(this);
+        System.out.println(formattedMsg);
     }
 }

@@ -6,6 +6,7 @@ import java.util.Random;
 import com.beeorder.orders.service.account.Account;
 import com.beeorder.orders.service.account.AccountRepo;
 import com.beeorder.orders.service.account.AccountService;
+import com.beeorder.orders.service.notification.PlacedNotification;
 import com.beeorder.orders.service.product.*;
 import ch.qos.logback.core.joran.sanity.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +85,7 @@ public class OrderService{
 
     public String makeSimple(ProductService productService, List<PairDto> orderComp){
         ProductRepo productRepo = productService.repos;
-
+        PlacedNotification placementNotification  = new PlacedNotification();
         SimpleOrder newOrder = new SimpleOrder();
         int randomId = generateID();
         newOrder.setId(randomId);
@@ -103,13 +104,11 @@ public class OrderService{
         newOrder.setOrderProduct(allProducts);
         newOrder.setOrderAccount(authorizedAccounts.get(0));
         ordersInventory.orders.add(newOrder);
-
+        placementNotification.sendNotification(newOrder);
         return "Order has been created successfully with ID "+ newOrder.getId() + " with total cost = "+ newOrder.getTotalCost()+ " + 50 for shippment";
     }
 public String makeCompoundOrder(ProductService productService, List<PairDto> orderComp) {
     ProductRepo productRepo = productService.repos;
-
-
     // generate compound order to add simple orders to it
     Order newOrder = new Order();
     int randomId = generateID();
@@ -126,6 +125,7 @@ public String makeCompoundOrder(ProductService productService, List<PairDto> ord
     newOrder = assignProductsToOrders(allProducts ,this.authorizedAccounts);
     newOrder.setId(randomId);
     ordersInventory.orders.add(newOrder);
+
     return "Order has been created successfully with ID "+ newOrder.getId() ;
 
 }
@@ -136,7 +136,7 @@ public Order assignProductsToOrders(List<Product> ourProducts , List<Account> ac
     int productNo = ourProducts.size();
     int noProductsPerorder = productNo / noAcc;
     int num = productNo % noAcc;
-
+    PlacedNotification placementNotification = new PlacedNotification();
     // make the compound order that will contains the simple orders
     Order compoundOrder = new Order();
 
@@ -159,11 +159,13 @@ public Order assignProductsToOrders(List<Product> ourProducts , List<Account> ac
         }
 
         if ( isEnoughBalance(accounts.get(accCounter), simpleOrder.getTotalCost())){
+            //sending notification for every simple order found in the compound order
+            placementNotification.sendNotification(simpleOrder);
             simpleOrder.setId(generateID());
             simpleOrder.setOrderAccount(accounts.get(accCounter));
             compoundOrder.getOrderComponents().add(simpleOrder);
-
         }
+
         accCounter++;
         i += noProductsPerorder;
     }
