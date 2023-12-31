@@ -9,5 +9,6 @@ public abstract class orderComponent
 {
     int id;
     public abstract orderComponent viewDetails();
+    public abstract void deductFromBalance();
 
 }

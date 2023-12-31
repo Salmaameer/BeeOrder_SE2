@@ -3,20 +3,18 @@ package com.beeorder.orders.service.order;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
 import com.beeorder.orders.service.account.Account;
 import com.beeorder.orders.service.account.AccountRepo;
 import com.beeorder.orders.service.account.AccountService;
 import com.beeorder.orders.service.product.*;
 import ch.qos.logback.core.joran.sanity.Pair;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+// represents services provided by the order module
 @Service
 public class OrderService{
-    OrdersInventory ordersInventory;
-    private List<Account> authorizedAccounts;
+    OrdersInventory ordersInventory; // 
+    private List<Account> authorizedAccounts; // contains the accounts that exist in the system , to authorize to create the user
 
     public OrderService(OrdersInventory o) {
         this.ordersInventory = o;
@@ -58,6 +56,7 @@ public class OrderService{
         List<String> temp = new ArrayList<String>(userNames);
 
         AccountRepo accRepo = accService.accountRepo;
+        //authorize by checking if the username exists in the accounts repo
         for (Account acc : accRepo.accounts) {
             for (String name : userNames) {
                 System.out.println(name);
@@ -83,7 +82,7 @@ public class OrderService{
     }
 
 
-    public SimpleOrder makeSimple(ProductService productService, List<PairDto> orderComp){
+    public String makeSimple(ProductService productService, List<PairDto> orderComp){
         ProductRepo productRepo = productService.repos;
 
         SimpleOrder newOrder = new SimpleOrder();
@@ -103,17 +102,19 @@ public class OrderService{
         }
         newOrder.setOrderProduct(allProducts);
         newOrder.setOrderAccount(authorizedAccounts.get(0));
+        ordersInventory.orders.add(newOrder);
 
-        return newOrder;
+        return "Order has been created successfully with ID "+ newOrder.getId() + " with total cost = "+ newOrder.getTotalCost()+ " + 50 for shippment";
     }
-public Order makeCompoundOrder(ProductService productService, List<PairDto> orderComp) {
+public String makeCompoundOrder(ProductService productService, List<PairDto> orderComp) {
     ProductRepo productRepo = productService.repos;
 
 
     // generate compound order to add simple orders to it
     Order newOrder = new Order();
     int randomId = generateID();
-    newOrder.setId(randomId);
+    System.out.println(newOrder.getId());
+
     newOrder.orderComponents = new ArrayList<>();
 
     // the products that order contains
@@ -123,10 +124,13 @@ public Order makeCompoundOrder(ProductService productService, List<PairDto> orde
     allProducts = productsList(productRepo, orderComp);
 
     newOrder = assignProductsToOrders(allProducts ,this.authorizedAccounts);
+    newOrder.setId(randomId);
+    ordersInventory.orders.add(newOrder);
+    return "Order has been created successfully with ID "+ newOrder.getId() ;
 
-    return newOrder;
 }
-
+//used for assigning products to orders in compound order
+// as if it is a set of simple orders stored all in the compound order
 public Order assignProductsToOrders(List<Product> ourProducts , List<Account> accounts){
     int noAcc = accounts.size();
     int productNo = ourProducts.size();

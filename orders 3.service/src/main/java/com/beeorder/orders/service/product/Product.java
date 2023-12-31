@@ -18,4 +18,9 @@ public class Product extends orderComponent {
     public orderComponent viewDetails() {
         return this;
     }
+    @Override
+    public void deductFromBalance() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deductFromBalance'");
+    }
 }
