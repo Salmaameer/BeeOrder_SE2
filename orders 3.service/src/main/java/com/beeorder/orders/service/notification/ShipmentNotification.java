@@ -1,6 +1,8 @@
 package com.beeorder.orders.service.notification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.beeorder.orders.service.order.OrderStatus;
 import com.beeorder.orders.service.order.SimpleOrder;
 import com.beeorder.orders.service.product.Product;
 

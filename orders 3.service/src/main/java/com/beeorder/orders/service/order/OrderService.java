@@ -169,24 +169,20 @@ public Order assignProductsToOrders(List<Product> ourProducts , List<Account> ac
         accCounter++;
         i += noProductsPerorder;
     }
-
-
     return compoundOrder;
 }
-
-
-
-
 
     public  boolean isEnoughBalance(Account acc , double totalAmount){
         return totalAmount+50 < acc.getBalance();
     }
+
     public int generateID(){
         Random rand = new Random();
         int randomInt = rand.nextInt(10000);
         return randomInt;
 
     }
+
     public List<Product> productsList(ProductRepo productRepo ,List<PairDto> orderComp ){
 
         List<Product> allProducts = new ArrayList<>();
@@ -206,6 +202,21 @@ public Order assignProductsToOrders(List<Product> ourProducts , List<Account> ac
         return allProducts;
     }
 
+    public String cancelOrder(int id){
+        for (orderComponent order : ordersInventory.orders) {
+            if(order.getId() == id){
+                if(order instanceof SimpleOrder){
+                    SimpleOrder temp = (SimpleOrder) order;
+                    if(temp.getStatus() == OrderStatus.SHIPPED)
+                        return "Sorry the order has been shipped!";
+                    else{
+                        
+                    }
+                }
+            }
+        }
+        return "";
+    }
 
 
 }

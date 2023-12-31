@@ -1,6 +1,8 @@
 package com.beeorder.orders.service.notification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.beeorder.orders.service.order.OrderStatus;
 import com.beeorder.orders.service.order.SimpleOrder;
 import com.beeorder.orders.service.product.Product;
 
@@ -28,5 +30,6 @@ public class PlacedNotification extends Notification {
         this.setChannel(order.getOrderAccount().getNotificationChannel());
         queue.placementNotifications.add(this);
         System.out.println(formattedMsg);
+        order.setStatus(OrderStatus.PLACED);
     }
 }
