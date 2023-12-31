@@ -10,6 +10,7 @@ public class AccountService
     {
         this.accountRepo=o;
     }
+    //checks if account exists,used for authorization later
     public Account accountExists(String userName)
     {
         for(Account a : accountRepo.accounts)

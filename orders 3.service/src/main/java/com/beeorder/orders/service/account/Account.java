@@ -10,9 +10,9 @@ import jakarta.persistence.GenerationType;
 
 import java.util.Random;
 
+//account model contains account information
 
 @Getter @Setter
-
 public class Account {
 
     private Long id;
